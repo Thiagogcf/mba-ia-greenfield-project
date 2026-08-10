@@ -1,7 +1,7 @@
 # phase-03-videos — Progress
 
 **Status:** in_progress
-**SIs:** 1/8 completed
+**SIs:** 2/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)
 - **Status:** completed
@@ -16,9 +16,11 @@
   - Healthcheck do MinIO usa `mc ready local` (o binário `mc` é embarcado na imagem do servidor; `curl` não é garantido nas imagens UBI recentes).
 
 ### SI-03.3 — Entidade Video, Migration e Módulo Base
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** 11 passing (entity integration, public-id unit, module compile, migrations estendida)
+- **Observations:**
+  - O `beforeAll` do `migrations.integration-spec.ts` dropava tabelas em `Promise.all`; com a FK `videos→channels` os DROPs concorrentes deadlockavam no Postgres. Corrigido para drops sequenciais em ordem FK-safe (fragilidade latente pré-existente, exposta pela nova FK).
+  - `file_size` usa transformer bigint→number (10 GiB cabe com folga em Number.MAX_SAFE_INTEGER).
 
 ### SI-03.4 — Módulo de Storage (clientes S3, presign e multipart)
 - **Status:** pending
