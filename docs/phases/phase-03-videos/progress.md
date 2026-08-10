@@ -1,7 +1,7 @@
 # phase-03-videos — Progress
 
 **Status:** in_progress
-**SIs:** 2/8 completed
+**SIs:** 3/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)
 - **Status:** completed
@@ -23,9 +23,10 @@
   - `file_size` usa transformer bigint→number (10 GiB cabe com folga em Number.MAX_SAFE_INTEGER).
 
 ### SI-03.4 — Módulo de Storage (clientes S3, presign e multipart)
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** 6 passing (integração com MinIO real: multipart via presigned PUT, presign GET, content-disposition, abort; compiles de StorageModule e VideosModule)
+- **Observations:**
+  - `videos.module.spec` passou a exigir `ConfigModule.forRoot` global no test module (VideosModule importa StorageModule que injeta `storageConfig.KEY`) — conforme regra de testes do projeto.
 
 ### SI-03.5 — Endpoints de Upload (initiate, part-urls, complete, abort)
 - **Status:** pending
