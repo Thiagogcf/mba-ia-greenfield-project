@@ -45,6 +45,7 @@ _Decision provenance:_ decisions adopted from the recommendations under the auto
 **Recommendation:** **Option A (BullMQ + Redis)** — the only option that combines an *official* NestJS integration (the project consistently prefers first-party `@nestjs/*` packages — see phase 02's `@nestjs/jwt` choice), first-class retry/backoff for the video-processing failure policy (TD-08), and a real queue service in Compose. RabbitMQ's interoperability advantage buys nothing while the single worker is Node, and pg-boss violates the visible-queue-infrastructure constraint.
 
 **Decision:** A (BullMQ + Redis)
+**Libraries:** @nestjs/bullmq, bullmq
 
 ---
 
@@ -165,6 +166,9 @@ _Decision provenance:_ decisions adopted from the recommendations under the auto
 
 **Decision:** A (302 redirect to presigned GET; download via content-disposition presign)
 
+**Revisions:**
+- 2026-08-10 — Download authorization set to authenticated-only (any logged-in user) for `READY` videos; streaming stays public (anonymous watch per project overview). Rationale: "pelo usuário" read as registered platform user — download is active possession of the file, unlike watching; resolves validation AMB-2.
+
 ---
 
 ## TD-06: Unique Public Video URL Identity
@@ -225,6 +229,10 @@ _Decision provenance:_ decisions adopted from the recommendations under the auto
 - **Bucket bootstrap:** one-shot `minio/mc` init service in Compose (idempotent `mb --ignore-existing`), so neither API nor worker owns bucket creation.
 
 **Decision:** A (single bucket with per-video prefixes, AWS SDK v3, dual-endpoint presign strategy, pinned MinIO image, mc bootstrap)
+**Libraries:** @aws-sdk/client-s3, @aws-sdk/s3-request-presigner
+
+**Revisions:**
+- 2026-08-10 — Dev/test `.env` ships `S3_PUBLIC_ENDPOINT=http://minio:9000`: every Phase-03 client is an in-network test client, so presigned URLs are verifiable end-to-end by the suite without env overrides. The host-browser value (`http://localhost:9000`) is documented in `.env.example` for the future video UI phase. Rationale: keeps `.env` as executable truth for the container-run environment; resolves validation AMB-1.
 
 ---
 

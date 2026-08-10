@@ -3,7 +3,8 @@ kind: phase
 name: phase-03-videos
 sources_mtime:
   docs/project-plan.md: "2026-08-10T18:47:44-0300"
-  docs/decisions/technical-decisions-phase-03-videos.md: "2026-08-10T19:14:53-0300"
+  docs/decisions/technical-decisions-phase-03-videos.md: "2026-08-10T19:37:03-0300"
+  docs/phases/phase-03-videos/library-refs.md: "2026-08-10T19:38:32-0300"
   docs/decisions/technical-decisions-openapi-docs-nestjs.md: "2026-08-10T18:47:44-0300"
   docs/phases/phase-01-configuracao-base/context.md: "2026-08-10T18:47:44-0300"
   docs/phases/phase-02-auth/context.md: "2026-08-10T18:47:44-0300"
@@ -48,14 +49,16 @@ sources_mtime:
 
 | Ref | Source | Scope | Topic | Status | Decision | Libraries |
 |-----|--------|-------|-------|--------|----------|-----------|
-| phase-03-videos/TD-01 | phase | Backend | Background Processing Queue Technology | decided | A (BullMQ + Redis) | — |
-| phase-03-videos/TD-02 | phase | Cross-layer | 10GB Upload Strategy | decided | B (S3 multipart upload, presigned part URLs) | — |
-| phase-03-videos/TD-03 | phase | Repo-wide | Worker Execution Model | decided | A (same codebase, separate container, dedicated Nest entrypoint) | — |
-| phase-03-videos/TD-04 | phase | Backend | FFmpeg Distribution & Invocation | decided | A (system FFmpeg in Docker image, direct child_process) | — |
-| phase-03-videos/TD-05 | phase | Cross-layer | Streaming & Download Delivery | decided | A (302 redirect to presigned GET; content-disposition presign for download) | — |
-| phase-03-videos/TD-06 | phase | Backend | Unique Public Video URL Identity | decided | B (crypto-based 11-char base62 publicId, UNIQUE constraint, retry on collision) | — |
-| phase-03-videos/TD-07 | phase | Backend | Object Storage Layout & Access Configuration | decided | A (single bucket, per-video prefixes, AWS SDK v3, dual-endpoint presign, pinned MinIO + mc bootstrap) | — |
-| phase-03-videos/TD-08 | phase | Backend | Video Status Lifecycle & Failure Policy | decided | A (four states, retry/backoff, terminal FAILED + reason) | — |
+| phase-03-videos/TD-01 | phase | Backend | Background Processing Queue Technology | decided | A (BullMQ + Redis) | @nestjs/bullmq, bullmq |
+| phase-03-videos/TD-02 | phase | Cross-layer | 10GB Upload Strategy | decided | B (S3 multipart, presigned part URLs) | — |
+| phase-03-videos/TD-03 | phase | Repo-wide | Worker Execution Model | decided | A (same codebase, separate container) | — |
+| phase-03-videos/TD-04 | phase | Backend | FFmpeg Distribution & Invocation | decided | A (system FFmpeg, child_process) | — |
+| phase-03-videos/TD-05 | phase | Cross-layer | Streaming & Download Delivery | decided | A (302 redirect to presigned GET) | — |
+|     └─ Last revision: 2026-08-10 — Download authorization set to authenticated-only (any logged-in user) for… | | | | | | |
+| phase-03-videos/TD-06 | phase | Backend | Unique Public Video URL Identity | decided | B (11-char base62 publicId, UNIQUE) | — |
+| phase-03-videos/TD-07 | phase | Backend | Object Storage Layout & Access Configuration | decided | A (single bucket, AWS SDK v3, dual-endpoint presign) | @aws-sdk/client-s3, @aws-sdk/s3-request-presigner |
+|     └─ Last revision: 2026-08-10 — Dev/test `.env` ships `S3_PUBLIC_ENDPOINT=http://minio:9000`: every Phase-03… | | | | | | |
+| phase-03-videos/TD-08 | phase | Backend | Video Status Lifecycle & Failure Policy | decided | A (four states, retry/backoff, terminal FAILED) | — |
 
 _Source files:_
 
@@ -80,7 +83,7 @@ _Source files:_
 ### phase-03-videos/TD-01
 
 **Recommendation:** the only option that combines an *official* NestJS integration (the project consistently prefers first-party `@nestjs/*` packages — see phase 02's `@nestjs/jwt` choice), first-class retry/backoff for the video-processing failure policy (TD-08), and a real queue service in Compose. RabbitMQ's interoperability advantage buys nothing while the single worker is Node, and pg-boss violates the visible-queue-infrastructure constraint.
-**Libraries:** —
+**Libraries:** @nestjs/bullmq, bullmq
 
 ### phase-03-videos/TD-02
 
@@ -102,6 +105,9 @@ _Source files:_
 **Recommendation:** keeps the API a control plane on both the write path (TD-02) and the read path, with native `206` semantics from storage. Streaming presign TTL 6h; download presign TTL 15min with `response-content-disposition: attachment; filename="<original>"`.
 **Libraries:** —
 
+**Revisions:**
+- 2026-08-10 — Download authorization set to authenticated-only (any logged-in user) for `READY` videos; streaming stays public (anonymous watch per project overview). Rationale: "pelo usuário" read as registered platform user — download is active possession of the file, unlike watching; resolves validation AMB-2.
+
 ### phase-03-videos/TD-06
 
 **Recommendation:** a dependency-free 11-char base62 `publicId` with DB `UNIQUE` constraint and single-retry-on-collision policy; avoids pinning a legacy nanoid major for functionality `crypto` provides directly.
@@ -115,7 +121,10 @@ _Source files:_
 - **Image pin:** `minio/minio:RELEASE.2025-09-07T16-13-09Z` — the final community image; functionally complete S3 API for dev/test, swapped for real S3 in production. If the pin ever becomes unavailable, S3-compatible substitutes (e.g., Garage, SeaweedFS) can replace the Compose service without code changes — the SDK contract is the boundary.
 - **Bucket bootstrap:** one-shot `minio/mc` init service in Compose (idempotent `mb --ignore-existing`), so neither API nor worker owns bucket creation.
 
-**Libraries:** —
+**Libraries:** @aws-sdk/client-s3, @aws-sdk/s3-request-presigner
+
+**Revisions:**
+- 2026-08-10 — Dev/test `.env` ships `S3_PUBLIC_ENDPOINT=http://minio:9000`: every Phase-03 client is an in-network test client, so presigned URLs are verifiable end-to-end by the suite without env overrides. The host-browser value (`http://localhost:9000`) is documented in `.env.example` for the future video UI phase. Rationale: keeps `.env` as executable truth for the container-run environment; resolves validation AMB-1.
 
 ### phase-03-videos/TD-08
 
