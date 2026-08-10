@@ -14,6 +14,11 @@ const MANAGED_TABLES = [
   'verification_tokens',
 ];
 
+// Postgres enum types are NOT dropped by DROP TABLE — leftover types from a
+// previously migrated database break re-running CREATE TYPE. Keep in sync with
+// every enum created by the migrations under test.
+const MANAGED_TYPES = ['verification_tokens_type_enum'];
+
 describe('Database migrations (integration)', () => {
   let dataSource: DataSource;
 
@@ -37,6 +42,11 @@ describe('Database migrations (integration)', () => {
       ),
       dataSource.query(`DROP TABLE IF EXISTS "migrations" CASCADE`),
     ]);
+
+    // Types must be dropped after the tables that use them.
+    for (const type of MANAGED_TYPES) {
+      await dataSource.query(`DROP TYPE IF EXISTS "${type}"`);
+    }
   });
 
   afterAll(async () => {
