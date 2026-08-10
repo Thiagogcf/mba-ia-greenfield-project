@@ -10,9 +10,10 @@
   - `.env.example` tinha a linha `MAIL_FROM` sem aspas completas (quebrava o parser do Docker Compose — bug pré-existente documentado no CLAUDE.md do backend); normalizada para o formato quoted shell-safe junto com a adição das variáveis novas.
 
 ### SI-03.2 — Infraestrutura no Compose: MinIO, Redis e FFmpeg
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** no tests (Infra) — ACs verificados: minio/redis healthy, bucket criado, ffmpeg/ffprobe 5.1.9 na imagem
+- **Observations:**
+  - Healthcheck do MinIO usa `mc ready local` (o binário `mc` é embarcado na imagem do servidor; `curl` não é garantido nas imagens UBI recentes).
 
 ### SI-03.3 — Entidade Video, Migration e Módulo Base
 - **Status:** pending
