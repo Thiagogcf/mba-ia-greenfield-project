@@ -1,7 +1,7 @@
 # phase-03-videos — Progress
 
 **Status:** in_progress
-**SIs:** 4/8 completed
+**SIs:** 5/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)
 - **Status:** completed
@@ -37,9 +37,12 @@
   - `ChannelNotFoundException` (404) adicionada para o caso defensivo de usuário sem canal.
 
 ### SI-03.6 — Worker de Vídeo (entrypoint, consumer e FFmpeg)
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** 9 passing (unit do consumer com idempotência/falha terminal; integração com ffmpeg/ffprobe reais sobre fixture lavfi; compile do WorkerModule) + serviço `video-worker` de pé no Compose
+- **Observations:**
+  - O DataSource do worker usa lista explícita de entidades `[Video, Channel, User]` — `autoLoadEntities` só registra o que algum `forFeature` importa, e a relação `Video#channel` exigia o fecho transitivo (o TypeORM ficava em retry loop parecendo hang).
+  - `worker.module.spec` precisa de `module.init()` antes de `close()` para os shutdown hooks fecharem a conexão bloqueante do Worker BullMQ.
+  - Fixture de vídeo gerada em runtime via `ffmpeg -f lavfi testsrc` no teste (nenhum binário commitado).
 
 ### SI-03.7 — Endpoints de Entrega (status do dono, streaming, thumbnail e download)
 - **Status:** pending
