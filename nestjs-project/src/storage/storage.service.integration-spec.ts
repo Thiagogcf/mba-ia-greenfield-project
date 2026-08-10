@@ -13,9 +13,7 @@ describe('StorageService (integration — real MinIO)', () => {
     service.onModuleDestroy();
   });
 
-  async function collectStream(
-    stream: NodeJS.ReadableStream,
-  ): Promise<Buffer> {
+  async function collectStream(stream: NodeJS.ReadableStream): Promise<Buffer> {
     const chunks: Buffer[] = [];
     for await (const chunk of stream) {
       chunks.push(Buffer.from(chunk as Uint8Array));
@@ -77,9 +75,7 @@ describe('StorageService (integration — real MinIO)', () => {
 
     const response = await fetch(url);
     expect(response.status).toBe(200);
-    expect(response.headers.get('content-disposition')).toContain(
-      'attachment',
-    );
+    expect(response.headers.get('content-disposition')).toContain('attachment');
   });
 
   it('should abort a multipart upload so it cannot be completed', async () => {

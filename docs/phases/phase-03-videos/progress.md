@@ -1,6 +1,6 @@
 # phase-03-videos — Progress
 
-**Status:** in_progress
+**Status:** completed
 **SIs:** 8/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)

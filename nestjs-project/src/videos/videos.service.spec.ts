@@ -14,10 +14,7 @@ import {
 import storageConfig from '../config/storage.config';
 import { StorageService } from '../storage/storage.service';
 import { Video, VideoStatus } from './entities/video.entity';
-import {
-  VIDEO_PROCESS_JOB,
-  VIDEO_PROCESSING_QUEUE,
-} from './videos.constants';
+import { VIDEO_PROCESS_JOB, VIDEO_PROCESSING_QUEUE } from './videos.constants';
 import { VideosService } from './videos.service';
 
 const PART_SIZE = 104857600;
@@ -270,7 +267,11 @@ describe('VideosService', () => {
       const video = makeVideo();
       videoRepository.findOne.mockResolvedValue(video);
 
-      const result = await service.completeUpload('vid-1', 'user-1', dto as any);
+      const result = await service.completeUpload(
+        'vid-1',
+        'user-1',
+        dto as any,
+      );
 
       expect(storageService.completeMultipartUpload).toHaveBeenCalledWith(
         'videos/vid-1/original.mp4',
@@ -339,7 +340,9 @@ describe('VideosService', () => {
     });
 
     it('getStreamRedirect hides non-ready videos behind VIDEO_NOT_FOUND', async () => {
-      videoRepository.findOneBy.mockResolvedValue(makeVideo({ status: VideoStatus.PROCESSING }));
+      videoRepository.findOneBy.mockResolvedValue(
+        makeVideo({ status: VideoStatus.PROCESSING }),
+      );
 
       await expect(
         service.getStreamRedirect('publicid001'),
@@ -347,7 +350,9 @@ describe('VideosService', () => {
     });
 
     it('getThumbnailRedirect throws when the thumbnail is missing', async () => {
-      videoRepository.findOneBy.mockResolvedValue(makeReadyVideo({ thumbnail_key: null }));
+      videoRepository.findOneBy.mockResolvedValue(
+        makeReadyVideo({ thumbnail_key: null }),
+      );
 
       await expect(
         service.getThumbnailRedirect('publicid001'),
@@ -355,7 +360,9 @@ describe('VideosService', () => {
     });
 
     it('getDownloadRedirect presigns with sanitized attachment disposition and download TTL', async () => {
-      videoRepository.findOneBy.mockResolvedValue(makeReadyVideo({ file_name: 'my "movie".mp4' }));
+      videoRepository.findOneBy.mockResolvedValue(
+        makeReadyVideo({ file_name: 'my "movie".mp4' }),
+      );
 
       await service.getDownloadRedirect('publicid001');
 

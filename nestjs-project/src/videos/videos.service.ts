@@ -249,10 +249,7 @@ export class VideosService {
   }
 
   private partCountFor(video: Video): number {
-    return Math.max(
-      1,
-      Math.ceil(video.file_size / this.config.uploadPartSize),
-    );
+    return Math.max(1, Math.ceil(video.file_size / this.config.uploadPartSize));
   }
 
   private async findOwnedVideo(id: string, userId: string): Promise<Video> {

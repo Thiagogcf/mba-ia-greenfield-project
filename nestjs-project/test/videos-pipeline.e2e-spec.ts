@@ -192,7 +192,12 @@ describe('Videos pipeline (e2e — full flow with real worker, MinIO and Redis)'
       .expect(200);
     expect(completeRes.body.status).toBe('processing');
 
-    const processed = await pollVideo(videoId, token, ['ready', 'failed'], 90000);
+    const processed = await pollVideo(
+      videoId,
+      token,
+      ['ready', 'failed'],
+      90000,
+    );
     expect(processed.status).toBe('ready');
     expect(processed.duration_seconds).toBeGreaterThanOrEqual(10);
     expect(processed.duration_seconds).toBeLessThanOrEqual(14);
