@@ -1,11 +1,11 @@
 ---
 kind: phase
 name: phase-03-videos
-status: dirty
+status: clean
 issue_count: 0
 sources_mtime:
-  docs/phases/phase-03-videos/context.md: "2026-08-10T19:23:31-0300"
-  docs/decisions/technical-decisions-phase-03-videos.md: "2026-08-10T19:14:53-0300"
+  docs/phases/phase-03-videos/context.md: "2026-08-10T19:41:16-0300"
+  docs/decisions/technical-decisions-phase-03-videos.md: "2026-08-10T19:37:03-0300"
 issues:
   - id: AMB-1
     status: resolved
@@ -31,7 +31,7 @@ _None._
 
 ### Missing Decisions
 
-_None._ (All 9 capability bullets in `## Capability Coverage` map to ≥1 decided TD; error response format and rate limiting are covered by inherited phase-02-auth/TD-07 and TD-08.)
+_None._ (All 9 capability bullets in `## Capability Coverage` map to ≥1 decided TD with Libraries pinned where applicable; error response format and rate limiting are covered by inherited phase-02-auth/TD-07 and TD-08.)
 
 ### Dependency Gaps
 
@@ -39,11 +39,11 @@ _None._ (Prerequisites — JWT guard, channels 1:1, config/env conventions, swag
 
 ### Inherited Constraint Conflicts
 
-_None._ (New env vars and config factories follow the inherited namespaced `registerAs` + Joi validation conventions; no current TD contradicts an inherited TD.)
+_None._ (New env vars and config factories follow the inherited namespaced `registerAs` + Joi validation conventions; the TD-05/TD-07 Revisions introduce no conflict — download authenticated-only coexists with public streaming, and the `minio:9000` presign base is consistent with the Docker service-name rule.)
 
 ### Unresolved Open Questions
 
-_None._ (All 8 current-scope TDs are `decided`.)
+_None._ (All 8 current-scope TDs are `decided`; no pending TDs.)
 
 ### UI Coverage Gaps
 
