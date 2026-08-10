@@ -34,6 +34,10 @@ docker compose exec nestjs-api npm run start:dev
 Services:
 - `nestjs-api` — NestJS API, port `3000`
 - `db` — PostgreSQL 17, port `5432`, database `streamtube`, user/password `streamtube`
+- `mailpit` — SMTP capture, ports `1025` (SMTP) and `8025` (Web UI)
+- `minio` — S3-compatible object storage (pinned community image), ports `9000` (API) and `9001` (console), bucket `streamtube-media` created by the one-shot `createbuckets` service
+- `redis` — BullMQ queue backend, port `6379`, `maxmemory-policy=noeviction`
+- `video-worker` — queue consumer (same image as the API, `npm run start:worker:dev`), processes videos with `ffmpeg`/`ffprobe`
 
 All verification and teardown commands run on the **host machine**:
 
@@ -62,6 +66,8 @@ docker compose down
 npm run start:dev                        # Dev server with hot-reload
 npm run build                            # Compile to dist/
 npm run start:prod                       # Run compiled build
+npm run start:worker                     # Video worker (compiled entrypoint worker/main)
+npm run start:worker:dev                 # Video worker with hot-reload (used by the video-worker service)
 
 npm test                                 # Unit tests
 npm run test:watch                       # Unit tests in watch mode
@@ -92,6 +98,8 @@ docker compose exec nestjs-api npm run test:e2e   # already configured
 ```
 
 Parallel execution causes FK violations, deadlocks, and cross-suite contamination because suites truncate or seed shared tables concurrently.
+
+Integration and e2e suites exercise the real infrastructure: PostgreSQL, MinIO (presigned uploads/downloads), Redis (BullMQ) and `ffmpeg`/`ffprobe` inside the container. The full Compose stack must be up before running them — `test/videos-pipeline.e2e-spec.ts` additionally requires the `video-worker` service running, since the real worker consumes the processing job end-to-end.
 
 During active development, run only the tests related to the file being changed (`npm test -- path/to/file.spec.ts`). Before declaring a task done, run the full suite — see the global `CLAUDE.md` → "Definition of Done (Technical)".
 

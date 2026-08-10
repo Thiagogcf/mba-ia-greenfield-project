@@ -1,7 +1,7 @@
 # phase-03-videos — Progress
 
 **Status:** in_progress
-**SIs:** 6/8 completed
+**SIs:** 8/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)
 - **Status:** completed
@@ -51,6 +51,9 @@
   - `file_name` é sanitizado (aspas removidas) antes de entrar no header `content-disposition` do presign.
 
 ### SI-03.8 — E2E do Pipeline Completo e Sincronização da Documentação
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** 2 passing (pipeline integral: upload multipart real ≥2 partes → worker do Compose processa com ffmpeg → ready → stream Range/206 byte-idêntico → thumbnail → download; caminho de falha → failed com failure_reason)
+- **Observations:**
+  - Fixture do pipeline usa MJPEG (`-q:v 2`): x264 comprime conteúdo sintético abaixo de qualquer alvo de bitrate e não atingia os 5 MiB mínimos de parte; MJPEG garante tamanho multi-parte com vídeo válido.
+  - O spec reduz `UPLOAD_PART_SIZE` para 5 MiB via env no topo do arquivo — exercita o caminho multi-parte sem um arquivo de 100 MiB.
+  - CLAUDE.md raiz (fila Redis+BullMQ, seção Videos Module), nestjs-project/CLAUDE.md (serviços novos, comandos do worker, requisito de stack para e2e), software-arch.mermaid e openapi.json sincronizados com o código real.
