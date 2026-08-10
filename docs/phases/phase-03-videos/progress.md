@@ -1,7 +1,7 @@
 # phase-03-videos — Progress
 
 **Status:** in_progress
-**SIs:** 3/8 completed
+**SIs:** 4/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)
 - **Status:** completed
@@ -29,9 +29,12 @@
   - `videos.module.spec` passou a exigir `ConfigModule.forRoot` global no test module (VideosModule importa StorageModule que injeta `storageConfig.KEY`) — conforme regra de testes do projeto.
 
 ### SI-03.5 — Endpoints de Upload (initiate, part-urls, complete, abort)
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** 30 passing (unit do service com mocks; integração com DB+MinIO+Redis reais; e2e do fluxo completo com PUT presignado direto no storage)
+- **Observations:**
+  - BullMQ 6 tornou o client Redis um peer opcional (bring-your-own): `ioredis@^5` instalado como dependência explícita, complemento mecânico da escolha de TD-01 (registrado também no library-refs.md).
+  - `findByUserId` adicionado ao `ChannelsService` (lookup do canal 1:1 pertence ao domínio de channels), via `dataSource.getRepository` para não alterar o construtor coberto pelo spec existente.
+  - `ChannelNotFoundException` (404) adicionada para o caso defensivo de usuário sem canal.
 
 ### SI-03.6 — Worker de Vídeo (entrypoint, consumer e FFmpeg)
 - **Status:** pending

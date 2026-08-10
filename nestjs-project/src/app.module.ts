@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +10,7 @@ import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
 import mailConfig from './config/mail.config';
+import queueConfig from './config/queue.config';
 import storageConfig from './config/storage.config';
 import swaggerConfig from './config/swagger.config';
 import { envValidationSchema } from './config/env.validation';
@@ -22,6 +24,7 @@ import { envValidationSchema } from './config/env.validation';
         authConfig,
         databaseConfig,
         mailConfig,
+        queueConfig,
         storageConfig,
         swaggerConfig,
       ],
@@ -40,6 +43,13 @@ import { envValidationSchema } from './config/env.validation';
         database: dbConfig.name,
         autoLoadEntities: true,
         synchronize: false,
+      }),
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [queueConfig.KEY],
+      useFactory: (queue: ConfigType<typeof queueConfig>) => ({
+        connection: { host: queue.host, port: queue.port },
       }),
     }),
     AuthModule,

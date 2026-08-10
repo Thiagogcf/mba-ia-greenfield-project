@@ -8,6 +8,10 @@ libs:
     version: "^6.0.0"
     context7_id: "/taskforcesh/bullmq"
     fetched_at: "2026-08-10T19:40:00-03:00"
+  "ioredis":
+    version: "^5"
+    context7_id: "/taskforcesh/bullmq"
+    fetched_at: "2026-08-10T19:40:00-03:00"
   "@aws-sdk/client-s3":
     version: "^3.1107.0"
     context7_id: "/aws/aws-sdk-js-v3"
@@ -114,6 +118,7 @@ In `@nestjs/bullmq`, the same hooks are available via `@OnWorkerEvent('completed
 
 - Delivery is at-least-once; stalled-job recovery can re-deliver — `process()` must be idempotent (TD-08: reprocessing a `READY` video is a safe no-op/overwrite).
 - Redis must run with `maxmemory-policy=noeviction` to avoid silent job loss.
+- BullMQ 6 no longer bundles a Redis client — `ioredis` became an optional peer ("bring your own client"); the project installs `ioredis@^5` explicitly as the companion dependency (verified at implementation, SI-03.5).
 
 ---
 
