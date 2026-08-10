@@ -187,6 +187,49 @@ export class VideosService {
     await this.videoRepository.remove(video);
   }
 
+  async getOwnerVideo(id: string, userId: string): Promise<Video> {
+    return this.findOwnedVideo(id, userId);
+  }
+
+  async getStreamRedirect(publicId: string): Promise<string> {
+    const video = await this.findPublicReady(publicId);
+    return this.storageService.presignGetObject(
+      video.original_key,
+      this.config.presignStreamTtl,
+    );
+  }
+
+  async getThumbnailRedirect(publicId: string): Promise<string> {
+    const video = await this.findPublicReady(publicId);
+    if (!video.thumbnail_key) {
+      throw new VideoNotFoundException();
+    }
+    return this.storageService.presignGetObject(
+      video.thumbnail_key,
+      this.config.presignStreamTtl,
+    );
+  }
+
+  async getDownloadRedirect(publicId: string): Promise<string> {
+    const video = await this.findPublicReady(publicId);
+    const safeFileName = video.file_name.replace(/"/g, '');
+    return this.storageService.presignGetObject(
+      video.original_key,
+      this.config.presignDownloadTtl,
+      `attachment; filename="${safeFileName}"`,
+    );
+  }
+
+  private async findPublicReady(publicId: string): Promise<Video> {
+    const video = await this.videoRepository.findOneBy({
+      public_id: publicId,
+    });
+    if (!video || video.status !== VideoStatus.READY) {
+      throw new VideoNotFoundException();
+    }
+    return video;
+  }
+
   private async saveNewVideo(data: Partial<Video>): Promise<Video> {
     try {
       return await this.videoRepository.save(

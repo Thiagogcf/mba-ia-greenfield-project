@@ -1,7 +1,7 @@
 # phase-03-videos — Progress
 
 **Status:** in_progress
-**SIs:** 5/8 completed
+**SIs:** 6/8 completed
 
 ### SI-03.1 — Dependências e Namespaces de Configuração (storage e fila)
 - **Status:** completed
@@ -45,9 +45,10 @@
   - Fixture de vídeo gerada em runtime via `ffmpeg -f lavfi testsrc` no teste (nenhum binário commitado).
 
 ### SI-03.7 — Endpoints de Entrega (status do dono, streaming, thumbnail e download)
-- **Status:** pending
-- **Tests:** —
-- **Observations:** none
+- **Status:** completed
+- **Tests:** 24 passing (19 unit do service com branches de entrega; 5 e2e — 302 presignado, Range/206 real no MinIO, thumbnail público, download autenticado com content-disposition, visão do dono vs 404 para terceiros)
+- **Observations:**
+  - `file_name` é sanitizado (aspas removidas) antes de entrar no header `content-disposition` do presign.
 
 ### SI-03.8 — E2E do Pipeline Completo e Sincronização da Documentação
 - **Status:** pending
