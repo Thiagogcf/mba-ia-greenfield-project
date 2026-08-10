@@ -48,3 +48,41 @@ export class TokenReuseDetectedException extends DomainException {
     );
   }
 }
+
+export class ChannelNotFoundException extends DomainException {
+  constructor() {
+    super('CHANNEL_NOT_FOUND', 404, 'Channel not found for the current user');
+  }
+}
+
+export class VideoNotFoundException extends DomainException {
+  constructor() {
+    super('VIDEO_NOT_FOUND', 404, 'Video not found');
+  }
+}
+
+export class UploadNotActiveException extends DomainException {
+  constructor() {
+    super('UPLOAD_NOT_ACTIVE', 409, 'Video upload session is not active');
+  }
+}
+
+export class UploadPartsMismatchException extends DomainException {
+  constructor() {
+    super(
+      'UPLOAD_PARTS_MISMATCH',
+      400,
+      'Uploaded parts do not match the storage state',
+    );
+  }
+}
+
+export class InvalidPartNumbersException extends DomainException {
+  constructor() {
+    super(
+      'INVALID_PART_NUMBERS',
+      400,
+      'Part numbers are outside the valid range for this upload',
+    );
+  }
+}
